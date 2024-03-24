@@ -2,6 +2,7 @@ const inquirer = require('inquirer');
 const mysql = require('mysql2');
 const cTable = require('console.table');
 
+//db connection
 const db = mysql.createConnection(
     {
         host: 'localhost',
@@ -12,6 +13,7 @@ const db = mysql.createConnection(
 
     console.log('connected to employee_db'));
 
+//questions
 const questions = [
     {
         type: 'list',
@@ -32,7 +34,31 @@ const questions = [
     }
 ];
 
+// view all departments function
+function viewAllDepartments() {
+    db.query('SELECT * FROM departments', (error, results)=> {
+        console.table('view all employees', results);
+    init();
+    });
+  };
 
+// view all roles function
+  function viewAllRoles() {
+    db.query('SELECT * FROM roles', (error, results)=> {
+        console.table('view all roles', results);
+    init();
+    });
+  };
+
+// view all employees
+  function viewAllEmployees() {
+    db.query('SELECT * FROM employees', (error, results)=> {
+        console.table('view all employees', results);
+    init();
+    });
+  };
+
+// init function
 function init(){
     inquirer.prompt(questions)
     .then((response) => {
