@@ -153,6 +153,68 @@ function addEmployee() {
     });
 };
 
+// update employee function
+function updateEmployee() {
+    // Function to get employees
+    const getEmployeesPromise = new Promise((resolve, reject) => {
+        db.query('SELECT id, first_name, last_name FROM employees', (error, results) => {
+            if (error) {
+                reject(error);
+            } else {
+                const employeesChoices = results.map(employee => ({
+                    name: `${employee.first_name} ${employee.last_name}`,
+                    value: employee.id
+                }));
+                resolve(employeesChoices);
+            }
+        });
+    });
+
+    // Function to get roles
+    const getRolesPromise = new Promise((resolve, reject) => {
+        db.query('SELECT id, title FROM roles', (error, results) => {
+            if (error) {
+                reject(error);
+            } else {
+                const roleChoices = results.map(role => ({
+                    name: role.title,
+                    value: role.id
+                }));
+                resolve(roleChoices);
+            }
+        });
+    });
+
+    // Promise.all to wait for both queries to finish
+    Promise.all([getEmployeesPromise, getRolesPromise])
+        .then(([employeesChoices, roleChoices]) => {
+            inquirer.prompt([
+                {
+                    type: 'list',
+                    name: 'employee',
+                    message: 'Select the employee',
+                    choices: employeesChoices
+                },
+                {
+                    type: 'list',
+                    name: 'role',
+                    message: 'Select the new role',
+                    choices: roleChoices
+                }
+            ])
+                .then((answers) => {
+                    const employeeId = answers.employee;
+                    const roleId = answers.role;
+                    db.query('UPDATE employees SET role_id = ? WHERE id = ?', [roleId, employeeId], (error, results) => {
+
+                        console.log('Employee role updated successfully.', console.table(results));
+                        init();
+                    });
+                });
+        })
+
+};
+
 // init function
 function init(){
     inquirer.prompt(questions)
