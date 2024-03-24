@@ -58,6 +58,101 @@ function viewAllDepartments() {
     });
   };
 
+
+  //add department function
+  function addDepartment() {
+    inquirer.prompt(
+        {
+            name: 'name',
+            type: 'input',
+            message: 'Enter the name of the new department'
+        }
+    )
+    .then((response)=> {
+        db.query('INSERT INTO departments SET ?', response, (error, results)=> {
+            console.table('New department inserted', results);
+            init();
+        });
+    });
+};
+
+// add role function
+function addRole() {
+    inquirer.prompt([
+        {
+            name: 'title',
+            type: 'input',
+            message: 'Enter the name of the new role'
+        },
+        {
+            name: 'salary',
+            type: 'input',
+            message: 'Enter the salary of role'
+        },
+        {
+            name: 'department',
+            type: 'input',
+            message: 'Enter the department id which the role belongs'
+        }
+    ])
+    .then((response)=> {
+        db.query('INSERT INTO roles SET ?', {title:response.title,
+                                            salary:response.salary,
+                                            department_id:response.department},
+         (error, results)=> {
+            console.table('New role inserted', results);
+            init();
+        });
+    });
+};
+
+// add employee function
+function addEmployee() {
+    inquirer.prompt([
+        {
+            name: 'firstName',
+            type: 'input',
+            message: 'Enter the first name'
+        },
+        {
+            name: 'lastName',
+            type: 'input',
+            message: 'Enter the last name'
+        },
+        {
+            name: 'role',
+            type: 'input',
+            message: 'Enter the role id which the employee belongs'
+        },
+        {
+            name: 'has_manager',
+            type: 'confirm',
+            message: 'Has manager?',
+            default: false,
+        },
+        {
+            name: 'manager',
+            type: 'input',
+            message: 'Enter the manager id',
+            when: (answers)=> answers.has_manager
+        }
+    ])
+    .then((response)=> {
+        db.query('INSERT INTO employees SET ?', {first_name: response.firstName,
+                                                 last_name: response.lastName,
+                                                 role_id: response.role,
+                                                 manager_id: response.manager},
+        (error, results)=> {
+            if (error) {
+                console.log(error)
+            } else {
+                console.table('New employee inserted', results);
+            }
+            init();
+        });
+    });
+};
+
 // init function
 function init(){
     inquirer.prompt(questions)
